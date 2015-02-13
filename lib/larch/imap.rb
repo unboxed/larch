@@ -143,14 +143,37 @@ class IMAP
 
     # Gmail doesn't allow folders with leading or trailing whitespace.
     name.strip! if @quirks[:gmail]
-    
+
     #Rackspace namespaces everything under INDEX.
     name.sub!(/^|inbox\./i, "INBOX.") if @quirks[:rackspace] && name != 'INBOX'
+
+    # Gmail folders
+    if @quirks[:gmail]
+      # Google doesn't allow labels under the inbox
+      name.sub!("INBOX/", "")
+
+      # Map special folders and consolidate different names
+      name = "[Gmail]/All Mail" if name =~ /^Archive$/
+      name = "[Gmail]/Chats" if name =~ /^Chats$/
+      name = "[Gmail]/Drafts" if name =~ /^Drafts$/
+      name = "[Gmail]/Sent Mail" if name =~ /^(Sent Items|Sent Messages|Sent)$/
+      name = "[Gmail]/Spam" if name =~ /^(Spam|Junk|Junk E-mail)$/
+      name = "[Gmail]/Trash" if name =~ /^(Deleted Messages|Deleted Items|Trash)$/
+    end
 
     begin
       @mailboxes.fetch(name) do
         update_mailboxes
         return @mailboxes[name] if @mailboxes.has_key?(name)
+
+        if @quirks[:gmail] && name == "[Gmail]/Trash"
+          return @mailboxes["[Gmail]/Bin"] if @mailboxes.has_key?("[Gmail]/Bin")
+        end
+
+        if @quirks[:gmail] && name == "[Gmail]/Chats"
+          raise MailboxNotFoundError, "enable 'Show in IMAP' for Chats"
+        end
+
         raise MailboxNotFoundError, "mailbox not found: #{name}"
       end
 
