@@ -83,5 +83,22 @@ module Net # :nodoc:
 
     end
 
+    class PlainAuthenticator
+      def process(data)
+        if @auth_user
+          return "#{@auth_user}\x00#{@user}\x00#{@password}"
+        else
+          return "\x00#{@user}\x00#{@password}"
+        end
+      end
+
+      private
+
+      def initialize(user, password, auth_user = nil)
+        @user = user
+        @password = password
+        @auth_user = auth_user
+      end
+    end
   end
 end

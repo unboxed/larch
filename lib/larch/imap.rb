@@ -251,6 +251,10 @@ class IMAP
     CGI.unescape(@uri.user)
   end
 
+  def auth_user
+    CGI.unescape(@uri.fragment) if @uri.fragment
+  end
+
   private
 
   # Tries to identify server implementations with certain quirks that we'll need
@@ -267,7 +271,7 @@ class IMAP
     elsif host =~ /^imap(?:-ssl)?\.mail\.yahoo\.com$/
       @quirks[:yahoo] = true
       debug "looks like Yahoo! Mail"
-          
+
     elsif host =~ /emailsrvr\.com/
       @quirks[:rackspace] = true
       debug "looks like Rackspace Mail"
@@ -345,7 +349,11 @@ class IMAP
           debug "authenticating using #{method}"
 
           if method == 'PLAIN'
-            @conn.login(username, password)
+            if auth_user
+              @conn.authenticate(method, username, password, auth_user)
+            else
+              @conn.login(username, password)
+            end
           else
             @conn.authenticate(method, username, password)
           end

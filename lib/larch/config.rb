@@ -17,6 +17,7 @@ class Config
     'from-folder'      => nil, # actually INBOX; see validate()
     'from-pass'        => nil,
     'from-user'        => nil,
+    'from-auth-user'   => nil,
     'max-retries'      => 3,
     'no-create-folder' => false,
     'no-recurse'       => false,
@@ -27,6 +28,7 @@ class Config
     'to-folder'        => nil, # actually INBOX; see validate()
     'to-pass'          => nil,
     'to-user'          => nil,
+    'to-auth-user'     => nil,
     'verbosity'        => 'info'
   }.freeze
 
@@ -115,7 +117,7 @@ class Config
     @cached = {}
 
     @lookup.reverse.each do |c|
-      c.each {|k, v| @cached[k] = config_merge(@cached[k] || {}, v) }      
+      c.each {|k, v| @cached[k] = config_merge(@cached[k] || {}, v) }
     end
   end
 

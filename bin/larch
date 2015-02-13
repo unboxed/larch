@@ -22,14 +22,16 @@ Usage:
 
 Server Options:
 EOS
-    opt :from,        "URI of the source IMAP server", :short => '-f', :type => :string
-    opt :from_folder, "Source folder to copy from (default: INBOX)", :short => '-F', :default => Config::DEFAULT['from-folder'], :type => :string
-    opt :from_pass,   "Source server password (default: prompt)", :short => '-p', :type => :string
-    opt :from_user,   "Source server username (default: prompt)", :short => '-u', :type => :string
-    opt :to,          "URI of the destination IMAP server", :short => '-t', :type => :string
-    opt :to_folder,   "Destination folder to copy to (default: INBOX)", :short => '-T', :default => Config::DEFAULT['to-folder'], :type => :string
-    opt :to_pass,     "Destination server password (default: prompt)", :short => '-P', :type => :string
-    opt :to_user,     "Destination server username (default: prompt)", :short => '-U', :type => :string
+    opt :from,           "URI of the source IMAP server", :short => '-f', :type => :string
+    opt :from_folder,    "Source folder to copy from (default: INBOX)", :short => '-F', :default => Config::DEFAULT['from-folder'], :type => :string
+    opt :from_pass,      "Source server password (default: prompt)", :short => '-p', :type => :string
+    opt :from_user,      "Source server username (default: prompt)", :short => '-u', :type => :string
+    opt :from_auth_user, "Source server admin username (default: none)", :short => '-r', :type => :string
+    opt :to,             "URI of the destination IMAP server", :short => '-t', :type => :string
+    opt :to_folder,      "Destination folder to copy to (default: INBOX)", :short => '-T', :default => Config::DEFAULT['to-folder'], :type => :string
+    opt :to_pass,        "Destination server password (default: prompt)", :short => '-P', :type => :string
+    opt :to_user,        "Destination server username (default: prompt)", :short => '-U', :type => :string
+    opt :to_auth_user,   "Destination server admin username (default: none)", :short => '-R', :type => :string
 
     text "\nCopy Options:"
     opt :all,              "Copy all folders recursively", :short => '-a'
@@ -79,8 +81,10 @@ EOS
   # Usernames and passwords specified as arguments override those in the URIs
   uri_from.user     = CGI.escape(config.from_user) if config.from_user
   uri_from.password = CGI.escape(config.from_pass) if config.from_pass
+  uri_from.fragment = CGI.escape(config.from_auth_user) if config.from_auth_user
   uri_to.user       = CGI.escape(config.to_user) if config.to_user
   uri_to.password   = CGI.escape(config.to_pass) if config.to_pass
+  uri_to.fragment   = CGI.escape(config.to_auth_user) if config.to_auth_user
 
   # If usernames/passwords aren't specified in either URIs or config, then prompt.
   uri_from.user     ||= CGI.escape(ask("Source username (#{uri_from.host}): "))
